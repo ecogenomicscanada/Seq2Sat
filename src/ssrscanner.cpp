@@ -1999,7 +1999,7 @@ std::string SsrScanner::scanVar (Read* & r1) {
             returnedlocus = locVarIt->name + "_failed";
             return (returnedlocus);
         }
-        
+
         std::map<std::string, std::map < std::string, Genotype>>::iterator itGenotypeMap = tmpAllGenotypeMap.find(locVarIt->name);
         std::map<std::string, Genotype> tmpGenotypeMap;
         Genotype* tmpGenotype = new Genotype();
@@ -2164,16 +2164,6 @@ std::tuple<int, int, bool> SsrScanner::doPrimerAlignment(const char* & qData, in
                 indelSet.insert(i);
             }
         }
-        //
-        //         printf("aaaaaaaaaaaaa\n");
-        //        printAlignment2(qData, tData, result.alignment, result.alignmentLength, *(result.endLocations), EDLIB_MODE_HW);
-        //
-        //        int endPos = *(result.endLocations) + 1;
-        //        printf("%s\n", qData);
-        //        printf("%s\n", tData);
-        //        printf("%ld -> %ld\n", snpsSet.size(), indelSet.size());
-        //        printf("%d\n", endPos);
-        //        printf("bbbbbbbbbbbbb\n");
 
         int endPos = *(result.endLocations) + 1;
         edlibFreeAlignResult(result);

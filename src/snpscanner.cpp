@@ -45,38 +45,35 @@ std::string SnpScanner::scanVar(Read* & r1) {
         bool goRP = false;
         int trimF = 0;
         int fpMismatches = (int) edit_distance(it.second.fp.mStr, r1->mSeq.mStr.substr(0, it.second.fp.length()));
-        if (fpMismatches <= mOptions->mLocSnps.mLocSnpOptions.maxMismatchesPSeq) {
-            trimF = it.second.fp.length();
-            goRP = true;
-        } else {
-            fpData = it.second.fp.mStr.c_str();
-            fpLength = it.second.fp.length();
-            auto endBoolF = doPrimerAlignment(fpData, fpLength, mOptions->mSex.sexMarker, readSeq, readLength, r1->mName, true);
+        fpData = it.second.fp.mStr.c_str();
+        fpLength = it.second.fp.length();
+        auto endBoolF = doPrimerAlignment(fpData, fpLength, mOptions->mSex.sexMarker, readSeq, readLength, r1->mName, true);
+
+        if(std::min(fpMismatches, get<0>(endBoolF)) > mOptions->mLocSnps.mLocSnpOptions.maxMismatchesPSeq) continue;
+
+        if(get<0>(endBoolF) <= fpMismatches){
+            fpMismatches =  get<0>(endBoolF);
             if (get<2>(endBoolF) && (get<1>(endBoolF) <= r1->length())) {
-                fpMismatches = get<0>(endBoolF); //already checked for mOptions->mLocSnps.mLocSnpOptions.maxMismatchesPSeq
                 if ((get<1>(endBoolF) + it.second.ft.length() + it.second.ref.length() + it.second.rt.length() + it.second.rp.length()) <= r1->mSeq.length()) {
                     trimF = get<1>(endBoolF);
                     goRP = true;
-                } else {
-                    goRP = false;
                 }
-            } else {
-                goRP = false;
             }
+        } else {
+            trimF = it.second.fp.length();
+            goRP = true;
         }
 
         if (goRP) {
             MatchTrim mTrim;
             int rpMismatches = (int) edit_distance(it.second.rp.mStr, r1->mSeq.mStr.substr(r1->mSeq.length() - it.second.rp.length()));
-            if (rpMismatches <= mOptions->mLocSnps.mLocSnpOptions.maxMismatchesPSeq) {
-                mTrim.totMismatches = fpMismatches + rpMismatches;
-                mTrim.trimF = trimF;
-                mTrim.trimedRefLenth = r1->mSeq.length() - trimF - it.second.rp.mStr.length();
-                locMap[it.second.name] = mTrim;
-            } else {
-                rpData = it.second.rp.mStr.c_str();
-                rpLength = it.second.rp.length();
-                auto endBoolR = doPrimerAlignment(rpData, rpLength, it.second.name, readSeq, readLength, r1->mName, true);
+            rpData = it.second.rp.mStr.c_str();
+            rpLength = it.second.rp.length();
+            auto endBoolR = doPrimerAlignment(rpData, rpLength, it.second.name, readSeq, readLength, r1->mName, true);
+
+            if(std::min(rpMismatches, get<0>(endBoolR)) > mOptions->mLocSnps.mLocSnpOptions.maxMismatchesPSeq) continue;
+            
+            if(get<0>(endBoolR) <= rpMismatches){
                 if (get<2>(endBoolR) && (get<1>(endBoolR) <= r1->mSeq.mStr.length()) &&
                         ((trimF + it.second.ft.length() + it.second.ref.length() + it.second.rt.length() + it.second.rp.length()) <= get<1>(endBoolR))) {
                     mTrim.totMismatches = fpMismatches + rpMismatches;
@@ -84,6 +81,11 @@ std::string SnpScanner::scanVar(Read* & r1) {
                     mTrim.trimedRefLenth = get<1>(endBoolR) - trimF - it.second.rp.mStr.length();
                     locMap[it.second.name] = mTrim;
                 }
+            } else {
+                mTrim.totMismatches = fpMismatches + rpMismatches;
+                mTrim.trimF = trimF;
+                mTrim.trimedRefLenth = r1->mSeq.length() - trimF - it.second.rp.mStr.length();
+                locMap[it.second.name] = mTrim;
             }
         }
     }
