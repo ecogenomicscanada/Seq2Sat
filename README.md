@@ -225,7 +225,8 @@ options:
 To inform us of any bugs or requests, please open a new issue or send an email to peng.liu@ec.gc.ca
 
 ## Seq2Sat History & Updates
-01/027/2024 - added functions to support optional SNP ploting to reduce html size  
+03/14/2024 - fixed bugs in primer matching for sat and snv identification  
+01/27/2024 - added functions to support optional SNP ploting to reduce html size  
 01/01/2024 - redeveloped sex identification and supported sequenceing error and haplotype analysis in sex allele  
 08/05/2023 - supported SNPs genotyping and sequencing error analysis  
 02/20/2023 - added functions to support reverse complmentary reverse primer sequence  
