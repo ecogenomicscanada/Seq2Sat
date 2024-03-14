@@ -193,14 +193,13 @@ public:
 public:
     std::string seq;
     int numReads;
-    bool indel;
+    bool indel;//against ref
     std::set<int> snpSet;//including seq errors;
 };
 
 class LocSnp2{
 public:
     LocSnp2();
-        
 public:
     std::string name;//marker name;
     Sequence fp;
@@ -243,6 +242,10 @@ public:
     double getHaploReadsRatio(bool haplot2 = false); // top 2 reads;
     double getHaploReadsPer(bool haplop2 = false);   // against totoal reads;
     double getReadsVarPer(int index);
+    void getBestRatio();  // pos and ratio = num variants with and without that SNP; for assisting the genotyping calling
+    std::pair<int, double> getBaseFreqPair(int pos);
+    std::vector<std::pair<int, double>> ratioVec;//for each snv, the ratio of number of read variants with and without that snv
+    std::string getRatioStr();
 };
 
 struct MatchTrim {

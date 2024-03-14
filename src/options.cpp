@@ -478,6 +478,7 @@ void Options::readLocFile(){
         std::vector<std::string> posVec;
         while(fileIn.getline(line, maxLine)) {
             readed = strlen(line);
+            if(readed == 0) continue;
             if (line[readed - 1] == '\n' || line[readed - 1] == '\r') {
                 line[readed - 1] = '\0';
                 if (line[readed - 2] == '\r') {
@@ -485,6 +486,7 @@ void Options::readLocFile(){
                 }
             }
             lineStr = std::string(line);
+            if(lineStr.empty()) continue;
             splitStr(lineStr, splitVec);
             if(splitVec.size() == 7){
                 LocSnp2 tmpLocSnp;

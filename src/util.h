@@ -285,7 +285,7 @@ inline string replace(const string& str, const string& src, const string& dest) 
 
 inline string reverse(const string& str) {
     string ret(str.length(), 0);
-    for (int pos = 0; pos < str.length(); pos++) {
+    for (int pos = 0; pos != str.length(); ++pos) {
         ret[pos] = str[str.length() - pos - 1];
     }
     return ret;
@@ -484,7 +484,7 @@ inline void splitStr(const string & str, std::vector<std::string> & ret_, string
 
 inline int findDigitLen(std::string str) {
     int len = 0;
-    for (int i = 0; i < str.length(); i++) {
+    for (int i = 0; i != str.length(); ++i) {
         if (isdigit(str[i])) {
             len++;
         } else {
@@ -497,19 +497,19 @@ inline int findDigitLen(std::string str) {
 inline std::string findSingSSR(std::string & cssr) {
     std::string newStr;
     int pos = 0;
-    while (pos < cssr.length()) {
+    while (pos != cssr.length()) {
         if (cssr[pos] == '(') {
             auto len = findDigitLen(cssr.substr(pos + 5));
             newStr += cssr.substr(pos, len + 5);
             pos += (5 + len);
         } else {
 
-            if (pos < cssr.length() - 1) {
+            if (pos != cssr.length() - 1) {
                 if (cssr[pos] == cssr[pos + 1]) {
                     newStr += "(";
                     newStr += cssr[pos];
                     int rep = 1;
-                    while (pos < cssr.length() - 1) {
+                    while (pos != cssr.length() - 1) {
                         if (cssr[pos] == cssr[pos + 1]) {
                             rep++;
                             pos++;
@@ -634,7 +634,7 @@ inline int getMaxNumRep(string & str) {
 
 inline std::string getMraBase(std::string & genStr) {
     std::stringstream ss;
-    for (int i = 0; i < genStr.length(); i++) {
+    for (int i = 0; i != genStr.length(); ++i) {
         auto tmp = genStr[i];
         if (!isdigit(tmp)) {
             ss << tmp;

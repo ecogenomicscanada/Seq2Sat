@@ -11,14 +11,15 @@ SRC := $(wildcard ${DIR_SRC}/*.cpp)
 OBJ := $(patsubst %.cpp,${DIR_OBJ}/%.o,$(notdir ${SRC}))
 
 TARGET := seq2sat
-
 BIN_TARGET := ${TARGET}
 
 CXX ?= g++
-CXXFLAGS := -std=c++11 -g -O3 -I${DIR_INC} $(foreach includedir,$(INCLUDE_DIRS),-I$(includedir)) ${CXXFLAGS}
+CXXFLAGS := -std=c++11 -I${DIR_INC} $(foreach includedir,$(INCLUDE_DIRS),-I$(includedir))
 LIBS := -lz -lpthread
-LD_FLAGS := $(foreach librarydir,$(LIBRARY_DIRS),-L$(librarydir)) $(LIBS) $(LD_FLAGS)
+LD_FLAGS := $(foreach librarydir,$(LIBRARY_DIRS),-L$(librarydir)) $(LIBS)
 
+debug: CXXFLAGS += -g -O0 -DDEBUG
+debug: ${BIN_TARGET}
 
 ${BIN_TARGET}:${OBJ}
 	$(CXX) $(OBJ) -o $@ $(LD_FLAGS)

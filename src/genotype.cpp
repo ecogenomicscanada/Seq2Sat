@@ -353,7 +353,11 @@ double LocSnp2::getHaploReadsRatio(bool haplo2){
     if(haplo2){
         return getPer(getVarReads(1), getVarReads(0) + getVarReads(1));
     } else {
-        return getPer(getVarReads(0), getVarReads(0) + getVarReads(1));
+        if(seqVarVec.size() > 1){
+            return getPer(getVarReads(0), getVarReads(0) + getVarReads(1));
+        } else {
+            return 1.0000;
+        }
     }
 }
 
@@ -365,6 +369,77 @@ double LocSnp2::getHaploReadsPer(bool haplo2){
 double LocSnp2::getReadsVarPer(int index){
     if(totReads == 0 || seqVarVec.at(index).numReads == 0) return 0.00;
     return getPer(seqVarVec.at(index).numReads, totReads);
+}
+
+std::string LocSnp2::getRatioStr() { 
+    std::string str = ""; 
+    //for(const auto & itv : ratioVec){
+       // str += std::to_string(itv.first) + "|" + std::to_string(itv.second) + ";";
+    //}
+    if(!ratioVec.empty()){
+        str += std::to_string(ratioVec.at(0).first) + "|" + std::to_string(ratioVec.at(0).second);
+    }
+    return str;
+}
+
+void LocSnp2::getBestRatio(){
+    if (seqVarVec.size() > 2){
+        bool go = false;
+        if (status.second) {  // top 2 vairants have indels; only comparing the length, could have a bug
+            go = true;
+        } else {
+            if(seqVarVec.at(0).seq.length() != seqVarVec.at(1).seq.length()){
+                go = true;
+            } else {
+                std::set<int> tmpPosSet;
+                tmpPosSet.insert(seqVarVec.at(0).snpSet.begin(), seqVarVec.at(0).snpSet.end());
+                tmpPosSet.insert(seqVarVec.at(1).snpSet.begin(), seqVarVec.at(1).snpSet.end());
+                for(const auto & it : tmpPosSet){
+                    if(seqVarVec.at(0).seq.at(it) != seqVarVec.at(1).seq.at(it)){
+                        ratioVec.push_back(getBaseFreqPair(it));
+                    }
+                }
+                std::sort(ratioVec.begin(), ratioVec.end(),
+                        [](const std::pair<int, double> &L, const std::pair<int, double> &R) {
+                            return L.second < R.second;
+                        });
+            }
+        }
+
+        if(go){
+            int len1 = seqVarVec.at(0).seq.length();
+            int len2 = seqVarVec.at(1).seq.length();
+            int len1n = 0;
+            int len2n = 0;
+            if (len1 != len2) {
+                for(const auto & it : seqVarVec){
+                    if(it.seq.length() == len1){
+                        len1n++;
+                    } else if (it.seq.length() == len2) {
+                        len2n++;
+                    }
+                }
+            }
+            ratioVec.emplace_back(std::make_pair(0, getPer(std::max(len1n, len2n), (len1n + len2n), false)));
+        }
+    }
+}
+
+std::pair<int, double> LocSnp2::getBaseFreqPair(int pos){
+    char c1n = seqVarVec.at(0).seq.at(pos);
+    char c2n = seqVarVec.at(1).seq.at(pos);
+    int n1 = 0;
+    int n2 = 0;
+    for (const auto &it : seqVarVec) {
+        if(it.seq.at(pos) == c1n) {
+            n1++;
+        } else if (it.seq.at(pos) == c2n) {
+            n2++;
+        } else {
+
+        }
+    }
+    return (std::make_pair((pos + trimPos.first), getPer(std::max(n1, n2), (n1 + n2), false)));
 }
 
 void LocSnp2::print(){

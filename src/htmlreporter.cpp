@@ -120,6 +120,7 @@ void HtmlReporter::outputRow(ofstream& ofs, LocSnp2& locSnp, bool align = true, 
                     "<font color='" + fc + "'>" + haploRatio + "</font></td>" + //homo or heter or inconclusive;
                     "<td bgcolor='" + bc + "'>" + //
                     "<font color='" + fc + "'>" + zygosity + "</font></td>" + //homo or heter or inconclusive;
+                    "<td>" + (ii == 0 ? locSnp.getRatioStr() : "") + "</td>" +
                     "<td>" + std::to_string(locSnp.getReadsVarPer(ii)) + "</td>" +
                     "<td>" + std::to_string(locSnp.totReads) + "</td>" +
                     "<td>" + std::to_string(locSnp.seqVarVec.at(ii).seq.length()) + "</td>" +
@@ -820,7 +821,10 @@ void HtmlReporter::reportAllSnps(ofstream& ofs) {
 }
 
 void HtmlReporter::reportSnpAlignmentTable(ofstream& ofs, std::string & divName, LocSnp2 & locSnp) {
-    ofs << "<div class='figurehalf' id='plot_h" + divName + "'></div>\n";
+    if (!mOptions->noSnpPlot) {
+        ofs << "<div class='figurehalf' id='plot_h" + divName + "'></div>\n";
+    }
+    
     if (!locSnp.baseErrorMap.empty() && !mOptions->noErrorPlot) {
         ofs << "<div class='figurefull' id='plot_e" + divName + "'></div>\n";
     }
@@ -829,12 +833,13 @@ void HtmlReporter::reportSnpAlignmentTable(ofstream& ofs, std::string & divName,
     ofs << "<div class='sub_section_tips'><font color='red'>Target heter SNPs are highlighted red, </font> <font color='green'>while target homo SNPs are highlighted green, </font> <font color='orange'>new potential SNPs are orange, </font><font color='gray'>sequence artifacts (errors) are gray!</font></div>\n";
     ofs << "<pre overflow: scroll>\n";
     ofs << "<table class='summary_table' style='width:100%'>\n";
-    ofs << "<tr style='background:#cccccc'> <td>ID</td><td>Marker</td><td>SNV</td><td>Haplotype</td><td>N. of Reads</td><td>Haplotype Ratio</td><td>Zygosity</td><td>Reads(%)</td><td>Total Reads</td><td>Length</td><td align='center'>Sequence</td></tr>\n";
+    ofs << "<tr style='background:#cccccc'> <td>ID</td><td>Marker</td><td>SNV</td><td>Haplotype</td><td>N. of Reads</td><td>Haplotype Ratio</td><td>Zygosity</td><td>Variant Ratio</td><td>Reads(%)</td><td>Total Reads</td><td>Length</td><td align='center'>Sequence</td></tr>\n";
 
     ofs << "<tr style='color:blue'>";
     ofs << "<td>0</td>" <<
             "<td>Reference</td>" <<
             "<td>ref</td>" <<
+            "<td>N.A.</td>" <<
             "<td>N.A.</td>" <<
             "<td>N.A.</td>" <<
             "<td>N.A.</td>" <<
@@ -850,28 +855,30 @@ void HtmlReporter::reportSnpAlignmentTable(ofstream& ofs, std::string & divName,
 
     ofs << "\n<script type=\"text/javascript\">" << endl;
 
-    //for bar plot of haplotype;
-    string json_str = "var data=[{";
-    json_str += "x:['Allele', 'Allele'],";
-    json_str += "y:[" + std::to_string(locSnp.getHaploReads()) + ", " + std::to_string(locSnp.getHaploReads(true)) + "],";
-    json_str += "text: ['" + locSnp.getHaploStr() + "', '" + locSnp.getHaploStr(true) + "'],";
-    json_str += "width: [0.5, 0.5],";
-    json_str += "type:'bar', textposition: 'auto', ";
+    string json_str = "";
+    if (!mOptions->noSnpPlot) {
+        // for bar plot of haplotype;
+        json_str += "var data=[{";
+        json_str += "x:['Allele', 'Allele'],";
+        json_str += "y:[" + std::to_string(locSnp.getHaploReads()) + ", " + std::to_string(locSnp.getHaploReads(true)) + "],";
+        json_str += "text: ['" + locSnp.getHaploStr() + "', '" + locSnp.getHaploStr(true) + "'],";
+        json_str += "width: [0.5, 0.5],";
+        json_str += "type:'bar', textposition: 'auto', ";
 
-    if (locSnp.genoStr3 == "homo") {
-        json_str += "marker:{color: ['darkgreen', 'darkgreen'], line: {color: 'white', width: 1.5}}";
-    } else {
-        json_str += "marker:{color: ['goldenrod', 'darkgreen'], line: {color: 'white', width: 1.5}}";
+        if (locSnp.genoStr3 == "homo") {
+            json_str += "marker:{color: ['darkgreen', 'darkgreen'], line: {color: 'white', width: 1.5}}";
+        } else {
+            json_str += "marker:{color: ['goldenrod', 'darkgreen'], line: {color: 'white', width: 1.5}}";
+        }
+
+        json_str += "}];\n";
+        json_str += "var layout = { title: '" + locSnp.genoStr3 + "', ";
+        json_str += "xaxis:{tickmode: 'array', title:'haplotype', automargin: true},";
+        json_str += "yaxis:{title:'Number of reads', automargin: true}, ";
+        json_str += "barmode: 'stack'};\n";
+        json_str += "Plotly.newPlot('plot_h" + divName + "', data, layout);\n";
+        ofs << json_str;
     }
-
-    json_str += "}];\n";
-    json_str += "var layout = { title: '" + locSnp.genoStr3 + "', ";
-    json_str += "xaxis:{tickmode: 'array', title:'haplotype', automargin: true},";
-    json_str += "yaxis:{title:'Number of reads', automargin: true}, ";
-    json_str += "barmode: 'stack'};\n";
-    json_str += "Plotly.newPlot('plot_h" + divName + "', data, layout);\n";
-    ofs << json_str;
-
     //for error rate line char
 
     if (!locSnp.baseErrorMap.empty() && !mOptions->noErrorPlot) {

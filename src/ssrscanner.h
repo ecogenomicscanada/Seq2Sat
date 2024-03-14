@@ -1,6 +1,7 @@
 #ifndef SSRSCANNER_H
 #define SSRSCANNER_H
 
+#include <iostream>
 #include <string>
 #include <algorithm>
 #include <vector>
@@ -31,7 +32,6 @@ public:
     
     std::string scanVar(Read* & r1);
     bool scanVar(Read* & r1, Read* & r2);
-    
     static std::vector<std::map<std::string, std::vector<std::pair<std::string, Genotype>>>> report(Options * & mOptions, std::map<std::string, std::map<std::string, Genotype>> & allGenotypeMap);
     static std::map<std::string, std::map<std::string, Genotype>> merge(std::vector<std::map<std::string, std::map<std::string, Genotype>>> & totalGenotypeSsrMapVec);
     inline std::map<std::string, std::map< std::string, Genotype>> getGenotypeMap() const {return tmpAllGenotypeMap;};
