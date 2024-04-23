@@ -225,6 +225,7 @@ options:
 To inform us of any bugs or requests, please open a new issue or send an email to peng.liu@ec.gc.ca
 
 ## Seq2Sat History & Updates
+02/23/2024 - added a arg for nanopore default setting  
 02/23/2024 - upldated functions to scan revcom reads  
 01/27/2024 - added functions to support optional SNP ploting to reduce html size  
 01/01/2024 - redeveloped sex identification and supported sequenceing error and haplotype analysis in sex allele  
