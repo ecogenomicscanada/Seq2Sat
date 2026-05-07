@@ -82,7 +82,7 @@ void cCout(const T & str, char color = 'd', bool newLine = true) {
             std::cout << "\033[1;37m" << str << "\033[0m";
         }
 
-    } else if (color = 'd') {
+    } else if (color == 'd') {
         if (newLine) {
             std::cout << str << std::endl;
         } else {
